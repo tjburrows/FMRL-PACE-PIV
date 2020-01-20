@@ -1,0 +1,27 @@
+[tburrows3@login-s1 practice_data_set]$ pace-check-queue prometheus
+
+        ** NEW FEATURE : add '-s' to pace-check-queue to list
+        ** scheduler features for each node
+
+=== prometheus Queue Summary: ====
+        Last Update                            : 03/06/2019 16:00:02
+        Number of Nodes (Accepting Jobs/Total) : 6/14 (42.86%)
+        Number of Cores (Used/Total)           : 269/364 (73.90%)
+        Amount of Memory (Used/Total) (MB)     : 100564/1770321 ( 5.68%)
+=================================================================================
+  Hostname       tasks/np Cpu%  loadav%  used/totmem(MB)   Mem%   Accepting Jobs?
+=================================================================================
+iw-p33-31-l        0/24    0.0     1.4      2743/66491      4.1    No  (node down or offline)
+iw-p33-31-r        0/24    0.0     2.5      2496/66491      3.8    No  (node down or offline)
+iw-p33-32-l        0/24    0.0     1.5      2713/66358      4.1    No  (node down or offline)
+rich133-c32-18-l  24/28   85.7    85.8      5896/260406     2.3    Yes (free)
+rich133-c38-21-l  24/28   85.7    86.0      5156/130989     3.9    Yes (free)
+rich133-c38-21-r  28/28  100.0   102.4     16291/130989    12.4    No  (all cores in use)
+rich133-c38-22-l  25/28   89.3    89.3     19656/131126    15.0    Yes (free)
+rich133-c38-22-r  24/28   85.7    85.8      5166/130989     3.9    Yes (free)
+rich133-c38-23-l  24/28   85.7    85.9      5092/130989     3.9    Yes (free)
+rich133-c38-23-r  24/28   85.7    86.0      5236/130989     4.0    Yes (free)
+rich133-g24-26-l  24/24  100.0   101.6      9672/131126     7.4    No  (all cores in use)
+rich133-g24-26-r  24/24  100.0   100.2      5154/131126     3.9    No  (all cores in use)
+rich133-g24-27-l  24/24  100.0   100.1      5221/131126     4.0    No  (all cores in use)
+rich133-g24-27-r  24/24  100.0   101.6     10072/131126     7.7    No  (all cores in use)

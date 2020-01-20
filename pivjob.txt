@@ -1,0 +1,21 @@
+# PBS Script to submit Davis PIV job
+
+#PBS -N DavisPIV                # Name of job
+#PBS -l nodes=2:ppn=2           # Number of nodes and processors per node
+#PBS -l pmem=4gb                # Memory per processor
+#PBS -l walltime=5:00:00        # Max time, hh:mm:ss
+#PBS -q prometforce-6           # Cluster where the job is to be submitted
+#PBS -j oe                      # Specifies output and error files to be saved
+#PBS -o joboutput.txt           # Output file location
+#PBS -m abe                     # Send emails when job is aborted (a), begins (b), or ends (e)
+#PBS -M gtusername3@gatech.edu  # Specifies email address to send notifications
+
+# *** Start of instructions to be executed by each processor ***
+
+# Loads modules required for parallelism across nodes
+module load java/1.8.0_25
+module load openmpi/2.1.1
+
+# Runs DaVis script in parallel over 4 processors.  This must be changed for different nodes or ppn.  
+# The time command returns the computation timeto the output file specified above.
+time mpirun -np 4 /nv/hp19/tburrows3/data/practice_data_set/practice_script.sh

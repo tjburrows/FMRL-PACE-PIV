@@ -1,5 +1,5 @@
 """
-batch-submit-mpi.py
+batch-submit.py
 This is a batch submit script for parallelizing PIV processing on PACE with Davis 8.4.
 @author: Travis Burrows
 01/20/2020

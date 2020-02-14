@@ -6,6 +6,8 @@
 \usepackage{fancyvrb}
 \usepackage[margin=0.5in]{geometry}
 \usepackage{cleveref}
+\usepackage{xcolor}
+\usepackage{listings}
 \RecustomVerbatimCommand{\VerbatimInput}{VerbatimInput}%
 {fontsize=\footnotesize,
 	frame=lines,  % top and bottom rule only
@@ -70,7 +72,33 @@
 	WebDrive is software that can mount an SFTP connection as a Windows drive letter.  This will not take advantage of a 10G connection, but does make accessing the files convenient.  Get the software from \url{http://software.oit.gatech.edu}.  Log in, and find WebDrive under FTP/VPN software.  Install it using the provided license and enter the same SFTP connection details as described in the \Cref{software}.  Note that this is a connection to only your personal PACE folder and could cause confusion if it is a shared machine.
 	
 	\subsection{Globus}
-	Procedure is to be determined.
+	Globus is the preferred method to transfer files to and from PACE.  Before your local machine can be used for transfers, Globus software must be installed, so your computer is registered as an Endpoint.
+	
+	\subsubsection{Installing Globus on a Local Machine}
+    \begin{enumerate}
+        \item Check if your compueter has Globus Connect Personal installed in your programs.  If so, make sure it is currently running, and note what the Endpoint Name is, by hovering over the icon in the taskbar.
+	    \item Navigate to \url{https://www.globus.org} and log in with the Glezer shared account
+	    \item Click Endpoints $\rightarrow$ Administered by You.  If your PC is shown here and the status is Ready, then you are ready to transfer files.  If your computer does not have Globus Connect Personal installed, or it is installed but does not show up here, you will have to uninstall and install again.
+	    \item To install Globus Connect Personal, click Endpoints, and Create a personal Endpoint, which is in the top right corner of the webpage.  Choose a name for the PC that the lab will understand, click Generate Setup Key, and dowload the installer.
+	    \item Run the installer on your local PC, and enter the setup key when asked.
+	    \item When you are asked about editing shared locations on your PC, go in and edit them.  Add all locations on the PC that you might want to transfer files to and from.  Only these locations will be available for transfer.
+	\end{enumerate}
+	
+	\subsubsection{Transferring files with Globus}
+	Once your local PC has Globus Connect Personal installed, follow these steps to make transfers.
+	\begin{enumerate}
+	    \item Select your local PC for a transfer by clicking File Manager $\rightarrow$ Collection Search $\rightarrow$ Your Collections $\rightarrow$ Your PC
+	    \item Click Transfer or Sync to... $\rightarrow$ Search $\rightarrow$ PACE Internal
+	    \item Log in to PACE Internal with your regular GT credentials (not Glezer shared)
+	    \item On the left side (local PC), navigate to the folder or files you would like to send or receive
+	    \item On the right side (PACE Internal), navigate to the folders or files you would like to send or receive
+	    \item Select all files/folders you would like to transfer
+	    \item If you want to only transfer new files, or update only files that have been changed, you can find advanced settings under Transfer \& Sync Options.
+	    \item If you would like to transfer Right $\rightarrow$ Left, click the start button on the left that points right.  If you want to transfer Right $\leftarrow$ Left, click the start button on the right side that points left.
+	    \item Find the status of your transfers in the pane called Activity.  You can also cancel transfers here.
+	    
+	    
+	\end{enumerate}
 	
 	\subsection{PACE Storage Folders}
 	When you connect to PACE you will by default be in your PACE home directory.  The path of this folder is something like \nolinkurl{/nv/hp19/yourusername}.  This folder, the home folder, has a limit of 5 GB of storage, and is backed up daily.  Therefore, it should not be used for PIV processing.  The subfolder called \nolinkurl{scratch} is designed to be a temporary data storage location, and has a limit of 7 TB.  Files older than 60 days are automatically deleted, and are not backed up.  The folder called \nolinkurl{data} has a limit of 2 million files/folders, is daily backed up, and can be used for longer-term storage.  Therefore, the safest place to conduct PIV processing is in the \nolinkurl{data} folder.  Note that \nolinkurl{data} and \nolinkurl{scratch} are actually shortcuts to other drives.  They can be reached by the path \nolinkurl{~/scratch}, or the actual path, which can be found in FileZilla upon navigating into one of these folder.	
@@ -84,7 +112,9 @@
 		\item Type the command \texttt{unzip DaVis8-linux64.zip} to unzip the contents into the current folder.
 		\item The linux DaVis will only work with a slight modification - follow these steps to rename one of the folders in the DaVis installation.  Rename the \texttt{linux64} folder to\texttt{ linux64.old} (\texttt{mv linux64 linux64.old }).  Now, rename the folder \texttt{linux64-centos69} to \texttt{linux64} (\texttt{mv linux64-centos69 linux64}).
 		\item Now, setup DaVis in cluster mode by running \texttt{./davis-setup.sh cluster} .  This initializes the installation into cluster mode.  You should receive this message: \\ \texttt{Starting DaVis to setup cluster configuration...\\Done. The script generated by the DaVis master can now be processed.}
-		\item Another test to make sure that DaVis is correctly configured is to run \texttt{./davis-start.sh}.  This should give a fairly long output,  listing the node's specifications, as well as DaVis available packages.  It should be clear that the program shut down on its own and didn't throw any errors.  Your DaVis install is now ready for processing!  Proceed to creating a processing script from your local DaVis.
+		\item Another test to make sure that DaVis is correctly configured is to run \texttt{./davis-start.sh}.  This should give a fairly long output,  listing the node's specifications, as well as DaVis available packages.  It should be clear that the program shut down on its own and didn't throw any errors. 
+		\item Finally, set your davis installation to be read only.  This helps prevent processors from changing it while others are using it.  Do this by running the following command: \texttt{chmod -R a-w $\sim$/davis} .  Your DaVis install is now ready for processing!  Proceed to creating a processing script from your local DaVis.
+		
 		
 	\end{enumerate}
 	
@@ -167,54 +197,44 @@
     	\item Now, find a PIV computer with the cluster script processing enabled, and unzip the \quotes{practice\_project.zip} included archive onto the desktop.
     	\item Open DaVis and set the Project directory to \texttt{Desktop/practice\_project}.  Navigate to \texttt{ Travis\_PIV\_Date=20181009} \texttt{\_Time=110058\_W2 / RPM2400Q\_dt1.25 / MaskCreateGeometric}.  Now, open the processing dialog and load the processing xml file included in the practice project folder.  This has PIV and PIV postprocessing loaded.  \textbf{NOTE: Check and make sure the first item on the processing list is not disabled.  If it is, there will or could be an error in the processing.  This is a bug in DaVis.}
     	\item Press the Create Processing Script button and enter the same values as the included screenshot, except change the  absolute path to yours.  Your home directory might not be in \texttt{/nv/hp19/}.  Make sure to set the script directory to the practice project folder as the screenshot does.  You can tell this step has completed by finding the script in the practice folder, along with a new directory with the same name as the script.  In addition, placeholder folders have been made for the PIV and postprocessing results, within the PIV project folder.
-    	\item Using FileZilla, transfer this whole folder \texttt{practice\_project} to your data folder on PACE.  This folder should contain the cluster script, the new cluster script folder, the PIV folder with corresponding xml and exp files, and the python script \texttt{batch-submit.py}.
+    	\item Using FileZilla, transfer this whole folder \texttt{practice\_project} to your data folder on PACE.  This folder should contain the cluster script, the new cluster script folder, the PIV folder with corresponding xml and exp files, and the python function \texttt{batch-submit.py}.
     	\item Before submitting the job, you need to modify permissions of the practice script .sh file to make it executable.  To back to your SSH terminal and run \texttt{chmod +x practice\_script.sh}.  Your working directory must be the folder which contains this script.
     	\item Test the script \texttt{practice\_script.sh} to see if it works properly before submitting the job.  To know if it works, first open up the script (\texttt{nano practice\_script.sh}) and delete the flag on the last line of the file that disables output, which is \texttt{-stdoff}.  With this removed, DaVis will tell you what is happening.  Now, save the file by pressing ctrl+x, y, then enter.  Now, type \texttt{./practice\_script.sh}.  You should start seeing messages from DaVis, eventually indicating that it is processing.  Note that you are currently processing on the PACE head note, not a compute node.  So once you have proved to yourself that it works, cancel it by pressing ctrl+c.  Insert the \texttt{-stdoff} flag back into the file.  An example of what this script looks like is shown below:
     	
     	\newpage
     	\VerbatimInput{practice_script.sh}
     	
-    	\item Instead of directly submitting this script, it will be submitted through the python program \texttt{batch-submit.py}.  This is because there is a bug in Davis 8.4 that has to do with MPI.  The original method outlined in the Appendix submits a single job, which requests for all of the computing resources desired to process the set of images.  This method submits a sequence of jobs, with each individual job only using a single core, and is assigned only a segment of the image set.  See the appendix for more detail about what \texttt{batch-submit.py} does.  
+    	\item Instead of directly submitting this script, it will be submitted through the python program \texttt{batch-submit.py}.  This method submits a single job, which requests for all of the computing resources desired to process the set of images.  It is the same as the original method in \Cref{OldExercise}, but the python function makes it more convenient.
     	
     	\item Before you can run the python file, you will have to load Python 3, by running \texttt{module load python/3.6}
     	
-    	\item Open the python script with \texttt{nano batch-submit.py} (or edit it locally and upload it with FileZilla) and edit the parameters to your preferences.  These include the path to your cluster script (\texttt{scriptPath}), the number of processors to use (\texttt{nProcs}), name of job to submit (\texttt{name}), time to allow for each process to finish (\texttt{walltime}), queue to submit to (\texttt{queue}).  If you want extra information, set \texttt{debug = 1} and fill in your email address.  This will put output files in the same directory as the cluster script, and email you when the job has started and finished.  For a more detailed description, see \Cref{batch-submit}. \textbf{For this exercise, try \texttt{nProcs = 20} and \texttt{walltime = '1:00:00'}.  This will split up the image set into 20 jobs of 5 images each, with an hour to finish, which is way more than needed.}
+    	\item The python file acts as a function which requires arguments, including script name, number of processors, and walltime in hours.  There are other optional parameters, including queue, memory and email notifications.  The default queue is iw-shared-6 and the default memory is 4GB, so it is not strictly necessary to provide this information.  Just run \texttt{python batch-submit.py} for a detailed description of how to use the function. \textbf{For this exercise, try 20 processors and 1 hour of walltime.  This will split up the image set into 20 jobs of 5 images each with an hour to finish, which is way more than needed.}
     	
-    	\item Run the script in your terminal by typing \texttt{python batch-submit.py} (Your working directory must be the folder that contains this script)
+    	\item Run the function in your terminal on \texttt{practice\_script.sh} with 20 processors for an hour by typing \texttt{python batch-submit.py practice\_script.sh 20 1}
     	
-    	\item After running the script, you should see printed output showing that the jobs have been submitted to the queue.  If you list all files in the directory of the script file, you will find a bunch of copies of this have been made - one for every process.  These will be deleted by their respective processes when each is finished.  Also, you will find a file \texttt{tempPBS.txt}.  This is the PBS script that was submitted for you, created by the python script.  You are welcome to delete it after the python script has been ran.  It is just there for reference.
+    	\item After running the function, you should see printed output showing that the jobs have been submitted to the queue.
     	
-    	\item Check the status of your job by running \texttt{qsub -u username -t}.  The -t flag will expand out your submitted job into all its parts, as this is an array of jobs.  If you want to delete the submitted job, type \texttt{qdel ********[]}.  If the brackets are empty, every job part will be deleted.
-    	
-    	\item To check how many vector files have been created so far, in terminal change directories (\texttt{cd}) to the folder that will contain the vc7 files.  Then type \texttt{ls | wc -l} to check the current number of files.  To continuously monitor the number of files, type \texttt{watch "ls | wc -l"}
+    	\item Check the status of your job by running \texttt{qsub -u username}.  If you want to delete the submitted job, type \texttt{qdel ********}.
     	
     	\item To tell if your jobs have completed, you can run \texttt{qsub -u username}, which will give your job the status of C (Complete) when the whole array of jobs is finished.  
     	
-    	\item When the jobs have completed, go back into FileZilla and download the vector files that were computed.  You are done!  Load them in your local DaVis to visualize them and do additional processing.
-    	
-    	
+    	\item When the jobs have completed, go back into FileZilla/Globus and download the vector files that were computed.  You are done!  Load them in your local DaVis to visualize them and do additional processing.
 	\end{enumerate}
+    
+    \section{Tips and Tricks}
+    \begin{itemize}
+        \item To check how many vector files have been created so far, in terminal change directories (\texttt{cd}) to the folder that will contain the vc7 files.  Then type \texttt{ls | wc -l} to check the current number of files.  To continuously monitor the number of files, type \texttt{watch "ls | wc -l"}
+        
+        \item If you want to make it more convenient to type \texttt{qsub -u username}, you can make your own custom command (I made one called qme).  See this link for rough instructions. \url{https://unix.stackexchange.com/a/84694}
+        
+        \item You might find that all your images didn't process.  Unfortunately, Davis is not free of bugs.  I have found that sometimes when I submit a job that contains PIV and Vector Postprocessing functions, it fails.  But when I only submit PIV computing functions, it works.  In this situation, you would have to do the postprocessing locally.
+        
+    \end{itemize}
     
     \newpage
 	\section{Appendix}
-	\subsection{Batch Python Script}
-	\label{batch-submit}
-	This section describes what the python script does, and how to use it.
-	The script \texttt{batch-submit.py} takes as an input your generated cluster script from Davis, as well as job and queue parameters.  The original cluster script asks Davis to compute the whole image range, and the python program makes multiple scripts, each one asking Davis to process a different segment of the whole range.  The number of segments is determined by parameter \texttt{nProcs}  An individual job is submitted for each segment.  If you choose \texttt{nProcs} of 20 for an image set of 1000, this script will submit 20 individual jobs.
-	
-	The following are the parameters you can change in the script:
-	\begin{itemize}
-	    \item \texttt{scriptPath} - Relative or absolute path to your cluster script file.  If the python file is in the same directory as the script, you can just enter the script name.
-	    \item \texttt{nProcs} - Number of processors/jobs to use, for splitting up the original image set.  There is a limit of 500 jobs per person in the queue.
-	    \item \texttt{name} - Name of the job itself, which will show up in the PACE job queuing system
-	    \item \texttt{pmem} - Amount of memory for a single process, in gigabytes.  For Planar and Stereo, 4 should be fine.
-	    \item \texttt{walltime} - Amount of time to allow for the job to finish.  This will depend on how many images you give each node.  Less images per processor will take less time to finish.  Make sure to overestimate so that the job isn't killed in the middle of processing.  However, a walltime that is too long will take longer to start processing, because the cluster has to reserve computing power for that whole period of time.
-	    \item \texttt{queue} - This is the name of the cluster to submit to.  As previously discussed in this document, see your options by running \texttt{pace-whoami}.  Also, run \texttt{pace-check-queue} \textit{clustername} to see how busy a given cluster is.  Your options are probably prometheus, prometforce-6, and iw-shared-6.
-	    \item \texttt{debug} - This is a switch to output extra debug information.  If you enable this, make sure to fill in your email address and the name of the file you would like to store the output information (\texttt{outputFile}).  To enable debugging, set \texttt{debug = 1}.
-	    
-	\end{itemize}
-	
 	\subsection{Old Practice Exercise}
+	\label{OldExercise}
 	This is the first practice exercise written for using Davis with PACE.  It turns out there are some bugs in Davis, preventing this method from always working.  Instead, see \Cref{PracticeExercise}.
 	
 	\begin{enumerate}
@@ -255,4 +275,24 @@
 			\end{tabular}
 		\end{figure}
 	\end{enumerate}
+	\subsection{batch-submit.py Source Code}
+	
+	\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+    \definecolor{codenumbers}{rgb}{0.7,0.7,0.7}
+    \lstdefinestyle{mystyle}{
+        tabsize=1,
+        showspaces=false,                
+        showstringspaces=false,
+        basicstyle=\ttfamily\footnotesize,
+        commentstyle=\color{codegray}\ttfamily\footnotesize\textsl,
+        numbers=left,
+        numberstyle=\color{codenumbers}\ttfamily\tiny,
+        numbersep=10pt,
+        breaklines=true
+    }
+    
+    \lstset{style=mystyle}
+    \lstinputlisting[language=Python]{batch-submit.py}
+	
+	
 \end{document}

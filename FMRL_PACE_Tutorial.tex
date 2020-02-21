@@ -224,14 +224,23 @@
     \section{Tips and Tricks}
     \begin{itemize}
         \item To check how many vector files have been created so far, in terminal change directories (\texttt{cd}) to the folder that will contain the vc7 files.  Then type \texttt{ls | wc -l} to check the current number of files.  To continuously monitor the number of files, type \texttt{watch "ls | wc -l"}
-        
-        \item If you want to make it more convenient to type \texttt{qsub -u username}, you can make your own custom command (I made one called qme).  See this link for rough instructions. \url{https://unix.stackexchange.com/a/84694}
-        
         \item You might find that all your images didn't process.  Unfortunately, Davis is not free of bugs.  I have found that sometimes when I submit a job that contains PIV and Vector Postprocessing functions, it fails.  But when I only submit PIV computing functions, it works.  In this situation, you would have to do the postprocessing locally.
-        
     \end{itemize}
+    \subsection{Custom Linux shortcuts}
+    Here is the procedure to create your own custom commands, to make things more convenient.
+    \begin{enumerate}
+        \item Create a directory in your PACE home directory ($\sim$) called scripts
+        \item Edit a hidden file in your home directory called \texttt{.bashrc} with the command \texttt{nano .bashrc}
+        \item Add the following text to the end of the file: \texttt{PATH=$\sim$/scripts:\$PATH}
+        \item Save the \texttt{.bashrc} file and run the command \texttt{source .bashrc}
+        \item Go to $\sim$/scripts and make a file called \texttt{qme} with the following contents, where you enter your username instead of gtusername
+        \VerbatimInput{qme}
+        \item Move the \texttt{batch-submit.py} file to \texttt{$\sim$/scripts}
+        \item Make a file called \texttt{submit} with the following contents:
+        \VerbatimInput{submit}
+        \item Now, you can be in any directory and run the python batch submit file with the command \texttt{submit}.  Also, you can just type \texttt{qme} to check your queue rather than the longer command \texttt{qstat -u gtusername}
+    \end{enumerate}
     
-    \newpage
 	\section{Appendix}
 	\subsection{Old Practice Exercise}
 	\label{OldExercise}
@@ -293,6 +302,4 @@
     
     \lstset{style=mystyle}
     \lstinputlisting[language=Python]{batch-submit.py}
-	
-	
 \end{document}

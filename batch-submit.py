@@ -2,7 +2,7 @@
 batch-submit.py
 This is a batch submit function for running Davis 8.4 on PACE.
 @author: Travis Burrows
-02/13/2020
+02/21/2020
 """
 
 from subprocess import run, PIPE

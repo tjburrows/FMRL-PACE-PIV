@@ -6,7 +6,7 @@ This is a batch submit function for running Davis 8.4 on PACE.
 """
 
 from subprocess import run, PIPE
-from os.path import dirname, join, isfile, abspath, basename, splitext
+from os.path import dirname, join, isfile, abspath, basename, splitext, isdir
 from argparse import ArgumentParser, ArgumentTypeError, ArgumentDefaultsHelpFormatter
 from math import floor
 from sys import stderr, exit
@@ -80,17 +80,38 @@ scriptFolder = dirname(scriptPath)
 pbsName = scriptWithoutExtension + '.pbs'
 pbsFilename = join(scriptFolder, pbsName)
 
+with open(scriptPath) as f:
+		content = f.readlines()
+		
+numLines = len(content)
+
+# Test to confirm files/folders exist that are referenced in script file
+keywords = {'PROCESSING_XML':1, 'PROJECT_PATH':0, 'SOURCE_PATH':0, 'RESULT_PATH':0}
+for label, IsFile in keywords.items():
+	labelIndex = [ indx for indx, strng in zip(list(range(0, numLines)), content) if strng.startswith(label)]
+	if (not len(labelIndex) == 1):
+		raise ValueError('Error finding %s keyword' % (label))
+	else:
+		labelIndex = labelIndex[0]
+	labelFilepath = content[labelIndex][(len(label)+2):-2]
+	if (IsFile and (not isfile(labelFilepath))) or ((not IsFile) and (not isdir(labelFilepath))):
+		raise ValueError('%s has invalid path:%s' % (label, labelFilepath))
+
+# Test to confirm davis-start.sh exists
+davisKeyword = 'davis-start'
+davisIndex = [ indx for indx, strng in zip(list(range(0, numLines)), content) if davisKeyword in strng]
+if (not len(davisIndex) == 1):
+	raise ValueError('Error finding %s keyword' % (davisKeyword))
+else:
+	davisIndex = davisIndex[0]
+keywordIndex = content[davisIndex].index(davisKeyword)
+davisPath = content[davisIndex][:keywordIndex-1]
+davisStartPath = join(davisPath, 'davis-start.sh')
+if not isfile(davisStartPath):
+	raise ValueError('Davis path is invalid: %s' % (davisStartPath))
+
 # If debug, remove -stdoff command from cluster script:
 if debug:
-	with open(scriptPath) as f:
-		content = f.readlines()
-	numLines = len(content)
-	davisKeyword = 'davis-start'
-	davisIndex = [ indx for indx, strng in zip(list(range(0, numLines)), content) if davisKeyword in strng]
-	if (not len(davisIndex) == 1):
-		raise ValueError('Error finding %s keyword' % (davisKeyword))
-	else:
-		davisIndex = davisIndex[0]
 	content[davisIndex] = content[davisIndex].replace('-stdoff','')
 	with open(scriptPath,'w') as f:
 		for line in content:

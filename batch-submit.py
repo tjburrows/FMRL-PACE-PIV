@@ -95,7 +95,10 @@ for label, IsFile in keywords.items():
 		labelIndex = labelIndex[0]
 	labelFilepath = content[labelIndex][(len(label)+2):-2]
 	if (IsFile and (not isfile(labelFilepath))) or ((not IsFile) and (not isdir(labelFilepath))):
-		raise ValueError('%s has invalid path:%s' % (label, labelFilepath))
+		if labelFilepath == '+':
+			raise ValueError('Hyperlooping is not supported!')
+		else:
+			raise ValueError('%s has invalid path:%s' % (label, labelFilepath))
 
 # Test to confirm davis-start.sh exists
 davisKeyword = 'davis-start'
